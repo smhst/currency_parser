@@ -1,21 +1,13 @@
 # parser.py
-import requests
-import xml.etree.ElementTree as ET
-from config import CBR_URL, CURRENCIES
+from config import ACTIVE_API
+from api import CbrFetcher
 
-def fetch_rates():
-    try:
-        response = requests.get(CBR_URL, timeout=10)
-        response.raise_for_status()
-        root = ET.fromstring(response.content)
-        rates = {}
-        for valute in root.findall("Valute"):
-            char_code = valute.find("CharCode").text
-            if char_code in CURRENCIES:
-                value = valute.find("Value").text
-                value = float(value.replace(",", "."))
-                rates[char_code] = value
-        return rates
-    except Exception as e:
-        print(f"Ошибка получения курсов: {e}")
-        return None
+def get_fetcher():
+    if ACTIVE_API == "cbr":
+        return CbrFetcher()
+    else:
+        raise ValueError(f"Неизвестный API: {ACTIVE_API}")
+
+def fetch_rates(date_str=None):
+    fetcher = get_fetcher()
+    return fetcher.fetch(date_str)   # возвращает кортеж (rates, actual_date)

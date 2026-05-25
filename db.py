@@ -18,19 +18,35 @@ def init_db():
     conn.commit()
     conn.close()
 
-def save_rates(rates):
+def save_rates(rates, date_str=None):
     if not rates:
         return
+    if date_str is None:
+        from datetime import date
+        date_str = date.today().isoformat()
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    today = date.today().isoformat()
     for currency, rate in rates.items():
         try:
             cursor.execute(
                 "INSERT OR IGNORE INTO rates (currency, rate, date) VALUES (?, ?, ?)",
-                (currency, rate, today)
+                (currency, rate, date_str)
             )
         except Exception as e:
             print(f"Ошибка сохранения {currency}: {e}")
     conn.commit()
     conn.close()
+    
+def get_history(currency, days):
+    import sqlite3
+    from datetime import date, timedelta
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    since = date.today() - timedelta(days=days)
+    cursor.execute(
+        "SELECT date, rate FROM rates WHERE currency = ? AND date >= ? ORDER BY date",
+        (currency, since.isoformat())
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
