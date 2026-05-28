@@ -36,27 +36,25 @@ def save_rates(rates, date_str=None):
     conn.commit()
     conn.close()
 
-def get_history(currency, days):
+def get_history(currency, date_from, date_to):
+    """Возвращает записи за период [date_from, date_to]."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    since = date.today() - timedelta(days=days)
     cursor.execute(
-        "SELECT date, rate FROM rates WHERE currency = ? AND date >= ? ORDER BY date",
-        (currency, since.isoformat())
+        "SELECT date, rate FROM rates WHERE currency = ? AND date >= ? AND date <= ? ORDER BY date",
+        (currency, date_from.isoformat(), date_to.isoformat())
     )
     rows = cursor.fetchall()
     conn.close()
     return rows
 
-def get_missing_dates(currencies, days):
-    """Возвращает уникальные даты (ISO), за которые отсутствуют записи хотя бы для одной валюты."""
-    today = date.today()
-    since = today - timedelta(days=days)
+def get_missing_dates(currencies, date_from, date_to):
+    """Возвращает уникальные даты в диапазоне, для которых нет записей хотя бы для одной валюты."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     missing_set = set()
-    d = since
-    while d <= today:
+    d = date_from
+    while d <= date_to:
         d_str = d.isoformat()
         for currency in currencies:
             cursor.execute(
@@ -65,7 +63,7 @@ def get_missing_dates(currencies, days):
             )
             if not cursor.fetchone():
                 missing_set.add(d_str)
-                break   # достаточно, что одной валюты нет — дату нужно загрузить
+                break
         d += timedelta(days=1)
     conn.close()
-    return sorted(missing_set)   # список уникальных дат
+    return sorted(missing_set)
