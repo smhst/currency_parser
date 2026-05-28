@@ -17,7 +17,7 @@
 
 ```bash
 python main.py --plot USD --days 30
-
+```
 ## Установка и запуск
 
 ```bash
@@ -27,7 +27,7 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 python main.py
-
+```
 Использование (CLI)
 
     Обычный запуск (курсы на сегодня, все валюты):
@@ -51,7 +51,7 @@ python main.py
     python main.py --history 30   # за последние 30 дней, недостающее подгрузится
 
 Пример работы
-bash
+```bash
 
 $ python main.py --history 3
 Проверка истории за 3 дней...
@@ -84,3 +84,4 @@ $ python main.py --plot EUR --days 30
 Отсутствуют данные за 11 дат(ы). Загружаем...
 Загрузка завершена.
 График сохранён как eur_chart.png
+```

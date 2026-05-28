@@ -2,8 +2,9 @@
 from abc import ABC, abstractmethod
 import requests
 import xml.etree.ElementTree as ET
-from datetime import datetime
 from config import CBR_URL, CURRENCIES
+import json
+from datetime import datetime, date
 
 def parse_cbr_date(date_str):
     """Преобразует дату из формата ЦБ (ДД.ММ.ГГГГ) в ISO (ГГГГ-ММ-ДД)"""
@@ -35,4 +36,26 @@ class CbrFetcher(BaseFetcher):
             return rates, actual_date
         except Exception as e:
             print(f"Ошибка получения курсов: {e}")
+            return None, None
+
+class ErApiFetcher(BaseFetcher):
+    """Бесплатный API exchangerate-api.com, без ключа, курсы к RUB."""
+    URL = "https://api.exchangerate-api.com/v4/latest/RUB"
+
+    def fetch(self, date_str=None):
+        # Этот API не поддерживает историю, date_str игнорируем
+        try:
+            response = requests.get(self.URL, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+            rates = {}
+            for code in CURRENCIES:
+                if code in data['rates']:
+                    # API возвращает курс, обратный к RUB, поэтому 1 / rate
+                    rate = 1 / data['rates'][code]
+                    rates[code] = round(rate, 4)
+            today = date.today().isoformat()
+            return rates, today
+        except Exception as e:
+            print(f"Ошибка получения курсов через ER API: {e}")
             return None, None
