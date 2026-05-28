@@ -140,6 +140,7 @@ python main.py --history --month 2026-05 --currencies USD CNY
 
 
 Графики
+
 Построить график USD за последние 30 дней:
 ```bash
 python main.py --plot USD
