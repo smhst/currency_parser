@@ -4,3 +4,4 @@ __pycache__/
 rates.db
 .env
 *.sqlite3
+charts/
