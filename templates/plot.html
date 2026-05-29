@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}График{% endblock %}
+{% block header %}График курса{% endblock %}
+{% block content %}
+  <form method="post">
+    <label>Валюта:
+      <select name="currency">
+        {% for c in currencies %}
+          <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+    <input type="radio" name="mode" value="days" checked> Последние
+    <input type="number" name="days" value="30" min="1" style="width:80px"> дней
+    <br>
+    <input type="radio" name="mode" value="range"> Диапазон:
+    <label>С: <input type="date" name="date_from" value="{{ default_from }}"></label>
+    <label>По: <input type="date" name="date_to" value="{{ today }}"></label>
+    <br>
+    <button type="submit">Построить</button>
+  </form>
+  {% if plot_url %}
+    <img src="{{ plot_url }}" alt="График" class="plot-img">
+  {% elif error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
+{% endblock %}

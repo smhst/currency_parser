@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}История курса{% endblock %}
+{% block header %}История курса{% endblock %}
+{% block content %}
+  <form method="post">
+    <label>Валюта:
+      <select name="currency">
+        {% for c in currencies %}
+          <option value="{{ c }}" {% if c == selected_currency %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>С: <input type="date" name="date_from" value="{{ date_from }}"></label>
+    <label>По: <input type="date" name="date_to" value="{{ date_to }}"></label>
+    <button type="submit">Показать</button>
+  </form>
+  {% if rows %}
+    <table>
+      <tr><th>Дата</th><th>Курс</th></tr>
+      {% for d, r in rows %}
+        <tr><td>{{ d }}</td><td>{{ r }}</td></tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>Нет данных за выбранный период.</p>
+  {% endif %}
+{% endblock %}
