@@ -1,0 +1,11 @@
+services:
+  currency-parser:
+    build: .
+    container_name: currency-parser
+    environment:
+      - DB_PATH=/app/data/rates.db
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

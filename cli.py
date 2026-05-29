@@ -51,4 +51,5 @@ def parse_args():
     parser.add_argument("--api", type=str, choices=["cbr", "erapi"], help="Выбор API (cbr или erapi)")
 
     parser.add_argument("--gui", action="store_true", help="Запустить графический интерфейс")
+    parser.add_argument("--web", action="store_true", help="Запустить веб-интерфейс на Flask")
     return parser.parse_args()

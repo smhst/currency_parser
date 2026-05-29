@@ -9,6 +9,11 @@ from plotter import plot_currency
 from utils import resolve_date_range
 from db import get_currencies, add_currency, remove_currency
 
+if args.web:
+    from web import app
+    app.run(debug=True)
+    return
+
 def fetch_with_retry(fetcher, req_date, max_retries=3):
     for attempt in range(max_retries):
         try:

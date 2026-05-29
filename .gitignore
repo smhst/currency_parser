@@ -5,3 +5,4 @@ rates.db
 .env
 *.sqlite3
 charts/
+data/
