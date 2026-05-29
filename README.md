@@ -23,6 +23,11 @@ pip install -r requirements.txt
 python main.py
 ```
 
+### Запуск GUI
+```bash
+python main.py --gui
+```
+
 ## Использование (CLI)
 Обычный запуск (курсы на сегодня, все валюты)
 ```bash

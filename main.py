@@ -27,6 +27,11 @@ def main():
     args = parse_args()
     init_db()
 
+    if args.gui:
+        from gui import main as gui_main
+        gui_main()
+        return
+
     # Определяем выбранный API, с учётом ограничений erapi для исторических запросов
     api_name = args.api
     if api_name == "erapi" and (args.history or args.plot or args.period or args.month or args.year):

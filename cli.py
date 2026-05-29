@@ -46,4 +46,6 @@ def parse_args():
     parser.add_argument("--plot", type=str, metavar="CURRENCY", help="Построить график для валюты (например, USD)")
 
     parser.add_argument("--api", type=str, choices=["cbr", "erapi"], help="Выбор API (cbr или erapi)")
+
+    parser.add_argument("--gui", action="store_true", help="Запустить графический интерфейс")
     return parser.parse_args()
