@@ -17,10 +17,11 @@
 ## Установка и запуск
 
 ### Через Docker (только вэб-интерфейс)
-
+```bash
 git clone https://github.com/smhst/currency_parser.git
 cd currency_parser
 docker compose up -d
+```
 
 Веб-интерфейс будет доступен на http://localhost:5000. База данных сохраняется в локальной папке data/.
 
