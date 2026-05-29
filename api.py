@@ -2,9 +2,9 @@
 from abc import ABC, abstractmethod
 import requests
 import xml.etree.ElementTree as ET
-from config import CBR_URL, CURRENCIES
-import json
 from datetime import datetime, date
+from config import CBR_URL
+from db import get_currencies
 
 def parse_cbr_date(date_str):
     """Преобразует дату из формата ЦБ (ДД.ММ.ГГГГ) в ISO (ГГГГ-ММ-ДД)"""
@@ -24,12 +24,13 @@ class CbrFetcher(BaseFetcher):
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             root = ET.fromstring(response.content)
-            raw_date = root.attrib.get("Date")          # например "23.05.2026"
-            actual_date = parse_cbr_date(raw_date)      # превращаем в "2026-05-23"
+            raw_date = root.attrib.get("Date")
+            actual_date = parse_cbr_date(raw_date)
             rates = {}
+            currencies = get_currencies()
             for valute in root.findall("Valute"):
                 char_code = valute.find("CharCode").text
-                if char_code in CURRENCIES:
+                if char_code in currencies:
                     value = valute.find("Value").text
                     value = float(value.replace(",", "."))
                     rates[char_code] = value
@@ -39,19 +40,18 @@ class CbrFetcher(BaseFetcher):
             return None, None
 
 class ErApiFetcher(BaseFetcher):
-    """Бесплатный API exchangerate-api.com, без ключа, курсы к RUB."""
-    URL = "https://api.exchangerate-api.com/v4/latest/RUB"
+    """Бесплатный API exchangerate.host, без ключа, курсы к RUB."""
+    URL = "https://api.exchangerate.host/latest?base=RUB"
 
     def fetch(self, date_str=None):
-        # Этот API не поддерживает историю, date_str игнорируем
         try:
             response = requests.get(self.URL, timeout=10)
             response.raise_for_status()
             data = response.json()
             rates = {}
-            for code in CURRENCIES:
+            currencies = get_currencies()
+            for code in currencies:
                 if code in data['rates']:
-                    # API возвращает курс, обратный к RUB, поэтому 1 / rate
                     rate = 1 / data['rates'][code]
                     rates[code] = round(rate, 4)
             today = date.today().isoformat()

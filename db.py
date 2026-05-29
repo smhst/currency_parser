@@ -1,11 +1,12 @@
 # db.py
 import sqlite3
 from datetime import date, timedelta
-from config import DB_NAME
+from config import DB_NAME, DEFAULT_CURRENCIES
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    # Таблица курсов
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS rates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,6 +16,51 @@ def init_db():
             UNIQUE(currency, date)
         )
     """)
+    # Таблица валют
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS currencies (
+            code TEXT PRIMARY KEY
+        )
+    """)
+    # Если таблица валют пуста, заполняем значениями по умолчанию
+    cursor.execute("SELECT COUNT(*) FROM currencies")
+    if cursor.fetchone()[0] == 0:
+        for code in DEFAULT_CURRENCIES:
+            cursor.execute("INSERT OR IGNORE INTO currencies (code) VALUES (?)", (code,))
+    conn.commit()
+    conn.close()
+
+def get_currencies():
+    """Возвращает список кодов валют из БД."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT code FROM currencies ORDER BY code")
+    rows = cursor.fetchall()
+    conn.close()
+    return [row[0] for row in rows]
+
+def add_currency(code):
+    code = code.upper()
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO currencies (code) VALUES (?)", (code,))
+        conn.commit()
+        print(f"Валюта {code} добавлена.")
+    except sqlite3.IntegrityError:
+        print(f"Валюта {code} уже существует.")
+    finally:
+        conn.close()
+
+def remove_currency(code):
+    code = code.upper()
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM currencies WHERE code = ?", (code,))
+    if cursor.rowcount > 0:
+        print(f"Валюта {code} удалена.")
+    else:
+        print(f"Валюта {code} не найдена.")
     conn.commit()
     conn.close()
 

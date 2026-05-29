@@ -45,6 +45,9 @@ def parse_args():
     parser.add_argument("--history", action="store_true", help="Показать историю курсов")
     parser.add_argument("--plot", type=str, metavar="CURRENCY", help="Построить график для валюты (например, USD)")
 
+    parser.add_argument("--add-currency", type=str, help="Добавить валюту (код)")
+    parser.add_argument("--remove-currency", type=str, help="Удалить валюту (код)")
+
     parser.add_argument("--api", type=str, choices=["cbr", "erapi"], help="Выбор API (cbr или erapi)")
 
     parser.add_argument("--gui", action="store_true", help="Запустить графический интерфейс")

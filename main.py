@@ -2,11 +2,12 @@
 import time
 from datetime import datetime, date
 from parser import fetch_rates, get_fetcher
-from config import CURRENCIES, ACTIVE_API
+from config import ACTIVE_API
 from cli import parse_args
 from db import init_db, save_rates, get_history, get_missing_dates
 from plotter import plot_currency
 from utils import resolve_date_range
+from db import get_currencies, add_currency, remove_currency
 
 def fetch_with_retry(fetcher, req_date, max_retries=3):
     for attempt in range(max_retries):
@@ -26,6 +27,14 @@ def fetch_with_retry(fetcher, req_date, max_retries=3):
 def main():
     args = parse_args()
     init_db()
+
+    if args.add_currency:
+        add_currency(args.add_currency)
+        return
+
+    if args.remove_currency:
+        remove_currency(args.remove_currency)
+        return
 
     if args.gui:
         from gui import main as gui_main
