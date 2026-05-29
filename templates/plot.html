@@ -19,9 +19,12 @@
     <br>
     <button type="submit">Построить</button>
   </form>
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
   {% if plot_url %}
     <img src="{{ plot_url }}" alt="График" class="plot-img">
-  {% elif error %}
-    <p class="error">{{ error }}</p>
+    <br>
+    <a href="{{ plot_url }}" download="chart.png" class="download-btn">Скачать PNG</a>
   {% endif %}
 {% endblock %}

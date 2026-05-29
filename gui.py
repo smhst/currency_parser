@@ -1,6 +1,6 @@
 # gui.py
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog
+from tkinter import ttk, messagebox, simpledialog, filedialog
 import threading
 from datetime import datetime, date, timedelta
 import matplotlib
@@ -23,6 +23,7 @@ class CurrencyApp:
         self.fetcher = get_fetcher(ACTIVE_API)
         init_db()
         self.currencies = get_currencies()
+        self.current_figure = None
 
         self.notebook = ttk.Notebook(root)
         self.notebook.pack(fill='both', expand=True, padx=10, pady=10)
@@ -66,7 +67,6 @@ class CurrencyApp:
         item = self.current_tree.item(selected[0])
         code = item['values'][0]
         if messagebox.askyesno("Удаление", f"Удалить валюту {code} и все её записи?"):
-            # удаляем из таблицы currencies и из rates (каскадно не настроено, поэтому удаляем явно)
             import sqlite3
             from config import DB_NAME
             conn = sqlite3.connect(DB_NAME)
@@ -184,7 +184,6 @@ class CurrencyApp:
         if self.currencies:
             self.plot_currency.current(0)
 
-        # Режим: последние N дней или диапазон
         self.plot_mode = tk.StringVar(value='days')
         ttk.Radiobutton(control_frame, text='Последние', variable=self.plot_mode, value='days').pack(side='left', padx=5)
         self.plot_days_entry = ttk.Entry(control_frame, width=5)
@@ -202,11 +201,26 @@ class CurrencyApp:
         self.plot_end.insert(0, date.today().strftime('%d.%m.%Y'))
 
         ttk.Button(control_frame, text='Построить', command=self.show_plot).pack(side='left', padx=10)
+        self.save_button = ttk.Button(control_frame, text='Сохранить как PNG', command=self.save_plot, state='disabled')
+        self.save_button.pack(side='left', padx=10)
 
         self.plot_frame = ttk.Frame(frame)
         self.plot_frame.pack(fill='both', expand=True)
         self.plot_status = ttk.Label(frame, text='')
         self.plot_status.pack()
+
+    def save_plot(self):
+        """Сохраняет текущий график в файл PNG."""
+        if self.current_figure is None:
+            messagebox.showwarning("Нечего сохранять", "Сначала постройте график.")
+            return
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
+        )
+        if filename:
+            self.current_figure.savefig(filename, dpi=100)
+            messagebox.showinfo("Сохранено", f"График сохранён как {filename}")
 
     def show_plot(self):
         currency = self.plot_currency.get()
@@ -252,6 +266,7 @@ class CurrencyApp:
             widget.destroy()
         if not rows:
             self.plot_status.config(text='Нет данных для графика')
+            self.save_button.config(state='disabled')
             return
 
         dates = [datetime.strptime(d, '%Y-%m-%d') for d, _ in rows]
@@ -269,6 +284,9 @@ class CurrencyApp:
         canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill='both', expand=True)
+
+        self.current_figure = fig
+        self.save_button.config(state='normal')
         self.plot_status.config(text=f'График {currency} с {d_from} по {d_to}')
 
 def main():
