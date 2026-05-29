@@ -28,6 +28,11 @@ python main.py
 python main.py --gui
 ```
 
+### Запуск web
+```bash
+python web.py
+```
+
 ## Использование (CLI)
 Обычный запуск (курсы на сегодня, все валюты)
 ```bash
